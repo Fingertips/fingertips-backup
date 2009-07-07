@@ -1,6 +1,7 @@
 == Launch EC2 instance that will host the EBS backup volume
 
 * I used the ‘Ubuntu 9.04 Jaunty 32bit base’ image from http://alestic.com/ (ami-0d729464)
+   * Find images with: $ ec2-describe-images -a | grep -i ubuntu | mate
 * Generate SSH keypair (skip if using an existing keypair, we have the fingertips keypair):
    $ ec2-add-keypair NAME > /path/to/keypair
 * Launch instance:
