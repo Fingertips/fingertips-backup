@@ -1,0 +1,73 @@
+IMAGE	ami-27e7004e	/aws-console-quickstart-amis/perl/1.2/perlquickstart.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-60da3d09	/aws-console-quickstart-amis/phpquickstart-v1.4.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-5ee70037	/aws-console-quickstart-amis/ruby/1.1/rubyquickstart.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-45e7002c	/aws-console-quickstart-amis/tomcat/1.1/tomcatquickstart.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	aki-d4ca2dbd	aki-linux-2.6.18.92-92.el5xen-xfs/vmlinuz-2.6.18.92-92.el5xen.i386.aki.manifest.xml	amazon	available	public		i386	kernel			
+IMAGE	aki-46e7002f	aki-linux.2.6.21.7-2.fc8xen-xfs/vmlinuz.manifest.xml	amazon	available	public		i386	kernel			
+IMAGE	ami-d1ca2db8	aws-toolkit-for-eclipse-amis-us/haproxy-v1.0.2.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-11ca2d78	aws-toolkit-for-eclipse-amis-us/tomcat-v1.0.0.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-4d48af24	ec2-paid-ibm-images/db2-express-32-bit.manifest.xml	amazon	available	public	A481895D	i386	machine	aki-8149aee8	ari-7748af1e	
+IMAGE	ami-4c48af25	ec2-paid-ibm-images/db2-workgroup-64-bit.manifest.xml	amazon	available	public	EA5F05A3	x86_64	machine	aki-8549aeec	ari-7648af1f	
+IMAGE	ami-244aad4d	ec2-paid-ibm-images/informix-dynamic-server-express-32-bit.manifest.xml	amazon	available	public	D6F6052A	i386	machine	aki-b34bacda	ari-b24bacdb	
+IMAGE	ami-434aad2a	ec2-paid-ibm-images/informix-dynamic-server-workgroup-edition-64-bit.manifest.xml	amazon	available	public	A9408B4B	x86_64	machine	aki-db4bacb2	ari-dd4bacb4	
+IMAGE	ari-7448af1d	ec2-paid-ibm-images/initrd-2.6.16.60-0.29-xenpae.i386.manifest.xml	amazon	available	public	D6FB1113	i386	ramdisk			
+IMAGE	ari-7748af1e	ec2-paid-ibm-images/initrd-2.6.16.60-0.29-xenpae.i386.manifest.xml	amazon	available	public	A481895D	i386	ramdisk			
+IMAGE	ari-b24bacdb	ec2-paid-ibm-images/initrd-2.6.16.60-0.29-xenpae.i386.manifest.xml	amazon	available	public	D6F6052A	i386	ramdisk			
+IMAGE	ari-4848af21	ec2-paid-ibm-images/initrd-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	8FCE3EEB	x86_64	ramdisk			
+IMAGE	ari-4948af20	ec2-paid-ibm-images/initrd-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	476D29CB	x86_64	ramdisk			
+IMAGE	ari-7648af1f	ec2-paid-ibm-images/initrd-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	EA5F05A3	x86_64	ramdisk			
+IMAGE	ari-dd4bacb4	ec2-paid-ibm-images/initrd-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	A9408B4B	x86_64	ramdisk			
+IMAGE	ami-6c55b205	ec2-paid-ibm-images/lotus-web-content-management-standard-edition-64-bit.manifest.xml	amazon	available	public	8FCE3EEB	x86_64	machine	aki-8249aeeb	ari-4848af21	
+IMAGE	aki-8049aee9	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.29-xenpae.i386.manifest.xml	amazon	available	public	D6FB1113	i386	kernel			
+IMAGE	aki-8149aee8	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.29-xenpae.i386.manifest.xml	amazon	available	public	A481895D	i386	kernel			
+IMAGE	aki-b34bacda	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.29-xenpae.i386.manifest.xml	amazon	available	public	D6F6052A	i386	kernel			
+IMAGE	aki-8249aeeb	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	8FCE3EEB	x86_64	kernel			
+IMAGE	aki-8349aeea	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	476D29CB	x86_64	kernel			
+IMAGE	aki-8549aeec	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	EA5F05A3	x86_64	kernel			
+IMAGE	aki-db4bacb2	ec2-paid-ibm-images/vmlinuz-2.6.16.60-0.30-xen.x86_64.manifest.xml	amazon	available	public	A9408B4B	x86_64	kernel			
+IMAGE	ami-6f55b206	ec2-paid-ibm-images/websphere-portal-and-lotus-web-content-management-standard-edition-64-bit.manifest.xml	amazon	available	public	476D29CB	x86_64	machine	aki-8349aeea	ari-4948af20	
+IMAGE	ami-b454b3dd	ec2-paid-ibm-images/websphere-smash-32-bit.manifest.xml	amazon	available	public	D6FB1113	i386	machine	aki-8049aee9	ari-7448af1d	
+IMAGE	ami-2c5fba45	ec2-public-images/demo-paid-AMI-v1.07.manifest.xml	amazon	available	public	A79EC0DB	i386	machine			
+IMAGE	ami-bd9d78d4	ec2-public-images/demo-paid-AMI.manifest.xml	amazon	available	public	A79EC0DB	i386	machine			
+IMAGE	ami-2f5fba46	ec2-public-images/developer-image-i386-v1.07.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-26b6534f	ec2-public-images/developer-image.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ari-a51cf9cc	ec2-public-images/ec2-initrd-2.6.21.7-2.fc8xen.i386.manifest.xml	amazon	available	public		i386	ramdisk			
+IMAGE	ari-b31cf9da	ec2-public-images/ec2-initrd-2.6.21.7-2.fc8xen.x86_64.manifest.xml	amazon	available	public		x86_64	ramdisk			
+IMAGE	aki-a71cf9ce	ec2-public-images/ec2-vmlinuz-2.6.21.7-2.fc8xen.i386.manifest.xml	amazon	available	public		i386	kernel			
+IMAGE	aki-b51cf9dc	ec2-public-images/ec2-vmlinuz-2.6.21.7-2.fc8xen.x86_64.manifest.xml	amazon	available	public		x86_64	kernel			
+IMAGE	ami-f51aff9c	ec2-public-images/fedora-8-i386-base-v1.06.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-2b5fba42	ec2-public-images/fedora-8-i386-base-v1.07.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-5647a33f	ec2-public-images/fedora-8-i386-base-v1.08.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ami-f21aff9b	ec2-public-images/fedora-8-x86_64-base-v1.06.manifest.xml	amazon	available	public		x86_64	machine	aki-b51cf9dc	ari-b31cf9da	
+IMAGE	ami-2a5fba43	ec2-public-images/fedora-8-x86_64-base-v1.07.manifest.xml	amazon	available	public		x86_64	machine	aki-b51cf9dc	ari-b31cf9da	
+IMAGE	ami-2547a34c	ec2-public-images/fedora-8-x86_64-base-v1.08.manifest.xml	amazon	available	public		x86_64	machine	aki-b51cf9dc	ari-b31cf9da	
+IMAGE	ami-a21affcb	ec2-public-images/fedora-core-6-x86_64-base-v1.06.manifest.xml	amazon	available	public		x86_64	machine	aki-a53adfcc	ari-a23adfcb	
+IMAGE	ami-2d5fba44	ec2-public-images/fedora-core-6-x86_64-base-v1.07.manifest.xml	amazon	available	public		x86_64	machine	aki-a53adfcc	ari-a23adfcb	
+IMAGE	ami-225fba4b	ec2-public-images/fedora-core4-apache-mysql-v1.07.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-25b6534c	ec2-public-images/fedora-core4-apache-mysql.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-2e5fba47	ec2-public-images/fedora-core4-apache-v1.07.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-23b6534a	ec2-public-images/fedora-core4-apache.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-215fba48	ec2-public-images/fedora-core4-base-v1.07.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-20b65349	ec2-public-images/fedora-core4-base.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-205fba49	ec2-public-images/fedora-core4-i386-base-v1.07.manifest.xml	amazon	available	public		i386	machine	aki-9b00e5f2		
+IMAGE	ami-255fba4c	ec2-public-images/fedora-core4-mysql-v1.07.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-22b6534b	ec2-public-images/fedora-core4-mysql.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-36ff1a5f	ec2-public-images/fedora-core6-base-x86_64.manifest.xml	amazon	available	public		x86_64	machine			
+IMAGE	ami-235fba4a	ec2-public-images/getting-started-v1.07.manifest.xml	amazon	available	public		i386	machine			
+IMAGE	ami-3c47a355	ec2-public-images/getting-started.manifest.xml	amazon	available	public		i386	machine	aki-a71cf9ce	ari-a51cf9cc	
+IMAGE	ari-67b95e0e	ec2-public-images/initrd-2.6.18-xenU-ec2-v1.0.i386.ari.manifest.xml	amazon	available	public		i386	ramdisk			
+IMAGE	ari-64b95e0d	ec2-public-images/initrd-2.6.18-xenU-ec2-v1.0.x86_64.ari.manifest.xml	amazon	available	public		x86_64	ramdisk			
+IMAGE	ari-a23adfcb	ec2-public-images/initrd-2.6.20-1.3002.fc6xen.ari.manifest.xml	amazon	available	public		x86_64	ramdisk			
+IMAGE	aki-9b00e5f2	ec2-public-images/vmlinuz-2.6.18-xenU-ec2-v1.0.i386.aki.manifest.xml	amazon	available	public		i386	kernel			
+IMAGE	aki-9800e5f1	ec2-public-images/vmlinuz-2.6.18-xenU-ec2-v1.0.x86_64.aki.manifest.xml	amazon	available	public		x86_64	kernel			
+IMAGE	aki-a53adfcc	ec2-public-images/vmlinuz-2.6.20-1.3002.fc6xen.aki.manifest.xml	amazon	available	public		x86_64	kernel			
+IMAGE	ami-de4daab7	ec2-public-windows-images/Server2003r2-i386-Win-v1.06.manifest.xml	amazon	available	public		i386	machine			windows
+IMAGE	ami-df4daab6	ec2-public-windows-images/Server2003r2-i386-WinAuth-v1.06.manifest.xml	amazon	available	public		i386	machine			windows
+IMAGE	ami-dc4daab5	ec2-public-windows-images/Server2003r2-x86_64-Win-v1.06.manifest.xml	amazon	available	public		x86_64	machine			windows
+IMAGE	ami-dd4daab4	ec2-public-windows-images/Server2003r2-x86_64-WinAuth-v1.06.manifest.xml	amazon	available	public		x86_64	machine			windows
+IMAGE	ami-da4daab3	ec2-public-windows-images/SqlSvrExp2003r2-i386-Win-v1.06.manifest.xml	amazon	available	public		i386	machine			windows
+IMAGE	ami-db4daab2	ec2-public-windows-images/SqlSvrExp2003r2-i386-WinAuth-v1.06.manifest.xml	amazon	available	public		i386	machine			windows
+IMAGE	ami-d84daab1	ec2-public-windows-images/SqlSvrExp2003r2-x86_64-Win-v1.06.manifest.xml	amazon	available	public		x86_64	machine			windows
+IMAGE	ami-d94daab0	ec2-public-windows-images/SqlSvrExp2003r2-x86_64-WinAuth-v1.06.manifest.xml	amazon	available	public		x86_64	machine			windows
+IMAGE	ami-c64daaaf	ec2-public-windows-images/SqlSvrStd2003r2-x86_64-Win-v1.06.manifest.xml	amazon	available	public		x86_64	machine			windows
+IMAGE	ami-c74daaae	ec2-public-windows-images/SqlSvrStd2003r2-x86_64-WinAuth-v1.06.manifest.xml	amazon	available	public		x86_64	machine			windows
