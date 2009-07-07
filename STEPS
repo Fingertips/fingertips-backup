@@ -7,4 +7,4 @@
 * Launch instance:
    $ ec2-run-instances ami-0d729464 -k fingertips
 * Connect:
-   $ ssh -i /Volumes/Fingertips\ Confidential/aws/fingertips/keys/fingertips root@ec2-174-129-161-208.compute-1.amazonaws.com
+   $ ssh -i /Volumes/Fingertips\ Confidential/aws/fingertips/keys/fingertips root@address-obtained-from-describe-instances
