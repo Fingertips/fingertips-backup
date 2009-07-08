@@ -1,0 +1,1 @@
+* Make sure to rescue any exceptions after an EC2 instance is brought online which will terminate the instance before exiting!
