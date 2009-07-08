@@ -9,20 +9,10 @@ module Fingertips
     HOME = '/opt/ec2'
     BIN = File.join(HOME, 'bin')
     
-    ENV = {
-      'EC2_HOME'        => HOME,
-      'EC2_PRIVATE_KEY' => PRIVATE_KEY_FILE,
-      'EC2_CERT'        => CERTIFICATE_FILE
-    }
+    ENV = { 'EC2_HOME' => HOME, 'EC2_PRIVATE_KEY' => PRIVATE_KEY_FILE, 'EC2_CERT' => CERTIFICATE_FILE }
     
     include Executioner
     Executioner::SEARCH_PATHS << BIN
-    
-    # def self.launch(ami)
-    #   instance = new(ami)
-    #   instance.launch!
-    #   instance
-    # end
     
     def run_instance(ami, options = {})
       ec2_run_instances("#{ami} #{concat_args(options)}")[1][1]
@@ -34,6 +24,10 @@ module Fingertips
     
     def terminate_instance(instance_id)
       ec2_terminate_instances(instance_id)[0][3]
+    end
+    
+    def running?(instance_id)
+      describe_instance(instance_id) == "running"
     end
     
     private

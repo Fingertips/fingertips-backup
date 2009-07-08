@@ -7,12 +7,6 @@ describe "Fingertips::EC2, in general" do
     @instance = Fingertips::EC2.new
   end
   
-  xit "should start an instance with the given AMI" do
-    Fingertips::EC2.expects(:new).with(@ami).returns(@instance)
-    @instance.expects(:launch!)
-    Fingertips::EC2.launch(@ami).should.be @instance
-  end
-  
   it "should return the right env variables to be able to use the Amazon CLI tools" do
     Fingertips::EC2::ENV.should == {
       'EC2_HOME'        => '/opt/ec2',
@@ -37,7 +31,7 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
     @options = { :switch_stdout_and_stderr => false, :env => Fingertips::EC2::ENV }
   end
   
-  it "should run an instance with the given options and return the instance ID" do
+  it "should run an instance of the given AMI with the given options and return the instance ID" do
     expect_call('run-instances', "ami-nonexistant -k fingertips")
     @instance.run_instance('ami-nonexistant', :k => 'fingertips').should == 'i-0992a760'
   end
@@ -50,6 +44,11 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
   it "should terminate an instance" do
     expect_call('terminate-instances', 'i-nonexistant')
     @instance.terminate_instance('i-nonexistant').should == "shutting-down"
+  end
+  
+  it "should return if an instance is running" do
+    expect_call('describe-instances', 'i-nonexistant')
+    @instance.running?('i-nonexistant').should.be true
   end
   
   private
