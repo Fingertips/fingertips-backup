@@ -3,6 +3,7 @@ require "test/spec"
 require "mocha"
 
 $:.unshift File.expand_path('../../lib', __FILE__)
+require "backup"
 
 FIXTURES = File.expand_path('../fixtures', __FILE__)
 

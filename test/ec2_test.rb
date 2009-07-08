@@ -1,5 +1,4 @@
 require File.expand_path('../test_helper', __FILE__)
-require "ec2"
 
 describe "Fingertips::EC2, in general" do
   before do
