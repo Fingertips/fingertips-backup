@@ -32,10 +32,15 @@ module Fingertips
       ec2_describe_instances(instance_id).detect { |line| line[1] == instance_id }[5]
     end
     
+    def terminate_instance(instance_id)
+      ec2_terminate_instances(instance_id)[0][3]
+    end
+    
     private
     
-    executable 'ec2-run-instances',      :env => ENV
-    executable 'ec2-describe-instances', :env => ENV
+    executable 'ec2-run-instances',       :env => ENV
+    executable 'ec2-describe-instances',  :env => ENV
+    executable 'ec2-terminate-instances', :env => ENV
     
     def parse(text)
       text.strip.split("\n").map { |line| line.split("\t") }

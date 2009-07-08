@@ -47,6 +47,11 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
     @instance.describe_instance("i-nonexistant").should == "running"
   end
   
+  it "should terminate an instance" do
+    expect_call('terminate-instances', 'i-nonexistant')
+    @instance.terminate_instance('i-nonexistant').should == "shutting-down"
+  end
+  
   private
   
   def expect_call(name, args)
