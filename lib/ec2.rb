@@ -20,12 +20,19 @@ module Fingertips
       @ami = ami
     end
     
+    def run_instances(options = {})
+      response = execute('run-instances', @ami, *options.map { |k,v| ["-#{k}", v] }.flatten)
+      response[1][1]
+    end
+    
+    private
+    
     def parse(text)
       text.strip.split("\n").map { |line| line.split("\t") }
     end
     
-    def execute(command, args)
-      parse(`#{ENV} #{BIN % command} #{args}`)
+    def execute(command, *args)
+      parse(`#{ENV} #{BIN % command} #{args.join(' ')}`)
     end
   end
 end
