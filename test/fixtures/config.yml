@@ -1,7 +1,7 @@
 ec2:
   ami: ami-nonexistant
-  private_key: /Volumes/Fingertips Confidential/aws/fingertips/pk-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem
-  certificate: /Volumes/Fingertips Confidential/aws/fingertips/cert-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem
+  private_key_file: /Volumes/Fingertips Confidential/aws/fingertips/pk-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem
+  certificate_file: /Volumes/Fingertips Confidential/aws/fingertips/cert-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem
 backup:
   tmp: /tmp/ec2_test_backup
   paths:

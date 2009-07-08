@@ -3,14 +3,14 @@ require File.expand_path('../test_helper', __FILE__)
 describe "Fingertips::EC2, in general" do
   before do
     @ami = 'ami-nonexistant'
-    @instance = Fingertips::EC2.new
+    @instance = Fingertips::EC2.new('/path/to/private_key_file', '/path/to/certificate_file')
   end
   
   it "should return the right env variables to be able to use the Amazon CLI tools" do
-    Fingertips::EC2::ENV.should == {
+    @instance.env.should == {
       'EC2_HOME'        => '/opt/ec2',
-      'EC2_PRIVATE_KEY' => Fingertips::EC2::PRIVATE_KEY_FILE,
-      'EC2_CERT'        => Fingertips::EC2::CERTIFICATE_FILE
+      'EC2_PRIVATE_KEY' => '/path/to/private_key_file',
+      'EC2_CERT'        => '/path/to/certificate_file'
     }
   end
   
@@ -26,8 +26,8 @@ end
 
 describe "Fingertips::EC2, concerning the pre-defined commands" do
   before do
-    @instance = Fingertips::EC2.new
-    @options = { :switch_stdout_and_stderr => false, :env => Fingertips::EC2::ENV }
+    @instance = Fingertips::EC2.new('/path/to/private_key_file', '/path/to/certificate_file')
+    @options = { :switch_stdout_and_stderr => false, :env => @instance.env }
   end
   
   it "should run an instance of the given AMI with the given options and return the instance ID" do

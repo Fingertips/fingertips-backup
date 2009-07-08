@@ -6,10 +6,6 @@ describe "Fingertips::Backup, in general" do
     @backup = Fingertips::Backup.new(fixture('config.yml'))
   end
   
-  it "should return the EC2 config" do
-    @backup.ec2_config.should == @config['ec2']
-  end
-  
   it "should return the paths to backup" do
     @backup.paths.should == @config['backup']['paths']
   end
@@ -22,6 +18,16 @@ describe "Fingertips::Backup, in general" do
     databases = @backup.mysql_databases
     databases.should.include 'information_schema'
     databases.should == `mysql --batch --skip-column-names -e "show databases"`.strip.split("\n")
+  end
+  
+  it "should return the AMI ID" do
+    @backup.ami.should == 'ami-nonexistant'
+  end
+  
+  it "should return a configured Fingertips::EC2 instance" do
+    @backup.ec2.should.be.instance_of Fingertips::EC2
+    @backup.ec2.private_key_file.should == @config['ec2']['private_key_file']
+    @backup.ec2.certificate_file.should == @config['ec2']['certificate_file']
   end
 end
 
