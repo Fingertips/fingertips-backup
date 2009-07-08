@@ -4,7 +4,7 @@ require "ec2"
 describe "Fingertips::EC2, in general" do
   before do
     @ami = 'ami-nonexistant'
-    @instance = Fingertips::EC2.new(@ami)
+    @instance = Fingertips::EC2.new
   end
   
   xit "should start an instance with the given AMI" do
@@ -21,10 +21,6 @@ describe "Fingertips::EC2, in general" do
     }
   end
   
-  it "should initialize with an AMI" do
-    @instance.ami.should == @ami
-  end
-  
   it "should return an array of lines splitted at tabs" do
     @instance.send(:parse, "    line1item1\tline1item2\nline2item1\tline2item2   ").should ==
       [['line1item1', 'line1item2'], ['line2item1', 'line2item2']]
@@ -37,19 +33,18 @@ end
 
 describe "Fingertips::EC2, concerning the pre-defined commands" do
   before do
-    @ami = 'ami-nonexistant'
-    @instance = Fingertips::EC2.new(@ami)
+    @instance = Fingertips::EC2.new
     @options = { :switch_stdout_and_stderr => false, :env => Fingertips::EC2::ENV }
   end
   
   it "should run an instance with the given options and return the instance ID" do
-    expect_call('run-instances', "#{@ami} -k fingertips")
-    @instance.run_instances(:k => 'fingertips').should == 'i-0992a760'
+    expect_call('run-instances', "ami-nonexistant -k fingertips")
+    @instance.run_instance('ami-nonexistant', :k => 'fingertips').should == 'i-0992a760'
   end
   
   it "should return the status of an instance" do
-    expect_call('describe-instances', "i-7b576012")
-    @instance.describe_instances("i-7b576012").should == "running"
+    expect_call('describe-instances', 'i-nonexistant')
+    @instance.describe_instance("i-nonexistant").should == "running"
   end
   
   private

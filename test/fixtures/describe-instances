@@ -1,2 +1,2 @@
 RESERVATION	r-bfda9cd6	895951156444	default
-INSTANCE	i-7b576012	ami-0d729464	ec2-174-129-88-205.compute-1.amazonaws.com	domU-12-31-39-00-84-B7.compute-1.internal	running	fingertips	0		m1.small	2009-07-08T13:06:22+0000	us-east-1b	aki-a71cf9ce	ari-a51cf9cc		monitoring-disabled
+INSTANCE	i-nonexistant	ami-0d729464	ec2-174-129-88-205.compute-1.amazonaws.com	domU-12-31-39-00-84-B7.compute-1.internal	running	fingertips	0		m1.small	2009-07-08T13:06:22+0000	us-east-1b	aki-a71cf9ce	ari-a51cf9cc		monitoring-disabled

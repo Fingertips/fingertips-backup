@@ -18,23 +18,17 @@ module Fingertips
     include Executioner
     Executioner::SEARCH_PATHS << BIN
     
-    def self.launch(ami)
-      instance = new(ami)
-      instance.launch!
-      instance
+    # def self.launch(ami)
+    #   instance = new(ami)
+    #   instance.launch!
+    #   instance
+    # end
+    
+    def run_instance(ami, options = {})
+      ec2_run_instances("#{ami} #{concat_args(options)}")[1][1]
     end
     
-    attr_reader :ami
-    
-    def initialize(ami)
-      @ami = ami
-    end
-    
-    def run_instances(options = {})
-      ec2_run_instances("#{@ami} #{concat_args(options)}")[1][1]
-    end
-    
-    def describe_instances(instance_id)
+    def describe_instance(instance_id)
       ec2_describe_instances(instance_id).detect { |line| line[1] == instance_id }[5]
     end
     
