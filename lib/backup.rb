@@ -11,16 +11,21 @@ module Fingertips
     executable :mysql
     executable :mysqldump
     
-    attr_reader :paths, :tmp_path, :ec2, :ami
+    attr_reader :paths, :tmp_path
+    attr_reader :ami, :ec2, :ec2_instance_id
     
     def initialize(config_file)
       config = YAML.load(File.read(config_file))
       
-      @paths      = config['backup']['paths']
-      @tmp_path   = config['backup']['tmp']
-      
-      @ami = config['ec2']['ami']
-      @ec2 = Fingertips::EC2.new(config['ec2']['private_key_file'], config['ec2']['certificate_file'])
+      @tmp_path = config['backup']['tmp']
+      @paths    = config['backup']['paths']
+      @ami      = config['ec2']['ami']
+      @ec2      = Fingertips::EC2.new(config['ec2']['private_key_file'], config['ec2']['certificate_file'])
+    end
+    
+    def bring_backup_volume_online!
+      @ec2_instance_id = @ec2.run_instance(@ami)
+      sleep 2.5 until @ec2.running?(@ec2_instance_id)
     end
     
     def mysql_databases

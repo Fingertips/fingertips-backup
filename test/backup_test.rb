@@ -66,3 +66,26 @@ describe "Fingertips::Backup, concerning the MySQL backup" do
     sql.gsub(/^--.*?$/, '').strip
   end
 end
+
+describe "Fingertips::Backup, concerning syncing with EBS" do
+  before do
+    @backup = Fingertips::Backup.new(fixture('config.yml'))
+  end
+  
+  it "should run an EC2 instance and wait till it's online" do
+    ec2 = @backup.ec2
+    ec2.expects(:run_instance).with(@backup.ami).returns("i-nonexistant")
+    
+    ec2.expects(:running?).with do |id|
+      # next time it's queried it will be running
+      def ec2.running?(id)
+        true
+      end
+      
+      id == "i-nonexistant"
+    end.returns(false)
+    
+    @backup.bring_backup_volume_online!
+    @backup.ec2_instance_id.should == "i-nonexistant"
+  end
+end
