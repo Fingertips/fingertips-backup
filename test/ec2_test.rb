@@ -3,18 +3,22 @@ require "ec2"
 
 describe "Fingertips::EC2, in general" do
   before do
-    @ami = 'ami-0d729464'
+    @ami = 'ami-nonexistant'
     @instance = Fingertips::EC2.new(@ami)
   end
   
-  it "should start an instance with the given AMI" do
+  xit "should start an instance with the given AMI" do
     Fingertips::EC2.expects(:new).with(@ami).returns(@instance)
     @instance.expects(:launch!)
     Fingertips::EC2.launch(@ami).should.be @instance
   end
   
-  it "should return the command to execute to set the right env" do
-    Fingertips::EC2::ENV.should == "/usr/bin/env EC2_HOME='/opt/ec2' EC2_PRIVATE_KEY='#{Fingertips::EC2::PRIVATE_KEY_FILE}' EC2_CERT='#{Fingertips::EC2::CERTIFICATE_FILE}'"
+  it "should return the right env variables to be able to use the Amazon CLI tools" do
+    Fingertips::EC2::ENV.should == {
+      'EC2_HOME'        => '/opt/ec2',
+      'EC2_PRIVATE_KEY' => Fingertips::EC2::PRIVATE_KEY_FILE,
+      'EC2_CERT'        => Fingertips::EC2::CERTIFICATE_FILE
+    }
   end
   
   it "should initialize with an AMI" do
@@ -26,27 +30,31 @@ describe "Fingertips::EC2, in general" do
       [['line1item1', 'line1item2'], ['line2item1', 'line2item2']]
   end
   
-  it "should execute an EC2 cli command" do
-    response = fixture_read('describe-images')
-    @instance.expects(:`).with("#{Fingertips::EC2::ENV} /opt/ec2/bin/ec2-describe-images -o amazon").returns(response)
-    @instance.send(:execute, 'describe-images', '-o', 'amazon').should == @instance.send(:parse, response)
+  it "should override #execute so it returns the response parsed" do
+    @instance.send(:execute, 'ls').should == @instance.send(:parse, `ls`)
   end
 end
 
 describe "Fingertips::EC2, concerning the pre-defined commands" do
   before do
-    @ami = 'ami-0d729464'
+    @ami = 'ami-nonexistant'
     @instance = Fingertips::EC2.new(@ami)
+    @options = { :switch_stdout_and_stderr => false, :env => Fingertips::EC2::ENV }
   end
   
   it "should run an instance with the given options and return the instance ID" do
-    expect_call('run-instances', @ami, '-k', 'fingertips')
+    expect_call('run-instances', "#{@ami} -k fingertips")
     @instance.run_instances(:k => 'fingertips').should == 'i-0992a760'
+  end
+  
+  it "should return the status of an instance" do
+    expect_call('describe-instances', "i-7b576012")
+    @instance.describe_instances("i-7b576012").should == "running"
   end
   
   private
   
-  def expect_call(name, *args)
-    @instance.expects(:execute).with(name, *args).returns(@instance.send(:parse, fixture_read(name)))
+  def expect_call(name, args)
+    @instance.expects(:execute).with("/opt/ec2/bin/ec2-#{name} #{args}", @options).returns(@instance.send(:parse, fixture_read(name)))
   end
 end

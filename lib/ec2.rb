@@ -1,12 +1,22 @@
+require "rubygems"
+require "executioner"
+
 module Fingertips
   class EC2
     PRIVATE_KEY_FILE = '/Volumes/Fingertips Confidential/aws/fingertips/pk-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem'
     CERTIFICATE_FILE = '/Volumes/Fingertips Confidential/aws/fingertips/cert-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem'
     
     HOME = '/opt/ec2'
-    BIN = File.join(HOME, 'bin', 'ec2-%s')
+    BIN = File.join(HOME, 'bin')
     
-    ENV = "/usr/bin/env EC2_HOME='#{HOME}' EC2_PRIVATE_KEY='#{PRIVATE_KEY_FILE}' EC2_CERT='#{CERTIFICATE_FILE}'"
+    ENV = {
+      'EC2_HOME'        => HOME,
+      'EC2_PRIVATE_KEY' => PRIVATE_KEY_FILE,
+      'EC2_CERT'        => CERTIFICATE_FILE
+    }
+    
+    include Executioner
+    Executioner::SEARCH_PATHS << BIN
     
     def self.launch(ami)
       instance = new(ami)
@@ -21,18 +31,24 @@ module Fingertips
     end
     
     def run_instances(options = {})
-      response = execute('run-instances', @ami, *options.map { |k,v| ["-#{k}", v] }.flatten)
-      response[1][1]
+      ec2_run_instances("#{@ami} #{concat_args(options)}")[1][1]
+    end
+    
+    def describe_instances(instance_id)
+      ec2_describe_instances(instance_id).detect { |line| line[1] == instance_id }[5]
     end
     
     private
+    
+    executable 'ec2-run-instances',      :env => ENV
+    executable 'ec2-describe-instances', :env => ENV
     
     def parse(text)
       text.strip.split("\n").map { |line| line.split("\t") }
     end
     
-    def execute(command, *args)
-      parse(`#{ENV} #{BIN % command} #{args.join(' ')}`)
+    def execute(command, options = {})
+      parse(super)
     end
   end
 end
