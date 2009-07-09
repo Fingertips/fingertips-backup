@@ -1,6 +1,8 @@
+require "yaml"
+
 require "rubygems"
 require "executioner"
-require "yaml"
+require "net/ssh"
 
 require "ec2"
 
@@ -29,6 +31,15 @@ module Fingertips
       
       @ec2.attach_volume(@config['ec2']['ebs'], @ec2_instance_id, :d => "/dev/sdh")
       sleep 2.5 until @ec2.attached?(@config['ec2']['ebs'])
+      
+      mount_backup_volume!
+    end
+    
+    def mount_backup_volume!
+      Net::SSH.start(@ec2.host_of_instance(@ec2_instance_id), 'root', :keys => [@config['ec2']['keypair_file']]) do |ssh|
+        ssh.exec! 'mkdir /mnt/data-store'
+        ssh.exec! 'mount /dev/sdh /mnt/data-store'
+      end
     end
     
     def mysql_databases

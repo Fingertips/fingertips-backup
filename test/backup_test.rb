@@ -72,6 +72,8 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
   end
   
   it "should run an EC2 instance and wait till it's online" do
+    @backup.stubs(:mount_backup_volume!)
+    
     @ec2.expects(:run_instance).with('ami-nonexistant', :k => 'fingertips', :z => 'eu-west-1a').returns("i-nonexistant")
     
     @ec2.expects(:running?).with do |id|
@@ -88,6 +90,8 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
   end
   
   it "should attach the existing EBS instance and wait till it's online" do
+    @backup.stubs(:mount_backup_volume!)
+    
     @ec2.expects(:attach_volume).with("vol-nonexistant", "i-nonexistant", :d => "/dev/sdh")
     
     @ec2.expects(:attached?).with do |id|
@@ -98,6 +102,17 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
       
       id == "vol-nonexistant"
     end.returns(false)
+    
+    @backup.bring_backup_volume_online!
+  end
+  
+  it "should mount the attached EBS volume on the running instance" do
+    @ec2.expects(:host_of_instance).with('i-nonexistant').returns('instance.amazon.com')
+    
+    ssh = mock('Net::SSH')
+    Net::SSH.expects(:start).with('instance.amazon.com', 'root', :keys => [@backup.config['ec2']['keypair_file']]).yields(ssh)
+    ssh.expects(:exec!).with('mkdir /mnt/data-store')
+    ssh.expects(:exec!).with('mount /dev/sdh /mnt/data-store')
     
     @backup.bring_backup_volume_online!
   end
