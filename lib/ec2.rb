@@ -27,7 +27,7 @@ module Fingertips
     end
     
     def describe_instance(instance_id)
-      ec2_describe_instances(instance_id, :env => env).detect { |line| line[1] == instance_id }[5]
+      ec2_describe_instances(instance_id, :env => env).detect { |line| line[1] == instance_id }
     end
     
     def terminate_instance(instance_id)
@@ -35,7 +35,11 @@ module Fingertips
     end
     
     def running?(instance_id)
-      describe_instance(instance_id) == "running"
+      describe_instance(instance_id)[5] == "running"
+    end
+    
+    def host_of_instance(instance_id)
+      describe_instance(instance_id)[3]
     end
     
     private

@@ -37,7 +37,7 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
   
   it "should return the status of an instance" do
     expect_call('describe-instances', 'i-nonexistant')
-    @instance.describe_instance("i-nonexistant").should == "running"
+    @instance.describe_instance("i-nonexistant").should == @instance.send(:parse, fixture_read('describe-instances'))[1]
   end
   
   it "should terminate an instance" do
@@ -48,6 +48,11 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
   it "should return if an instance is running" do
     expect_call('describe-instances', 'i-nonexistant')
     @instance.running?('i-nonexistant').should.be true
+  end
+  
+  it "should return the public host address of an instance" do
+    expect_call('describe-instances', 'i-nonexistant')
+    @instance.host_of_instance('i-nonexistant').should == 'ec2-174-129-88-205.compute-1.amazonaws.com'
   end
   
   private
