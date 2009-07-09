@@ -22,6 +22,8 @@ module Fingertips
       { 'EC2_HOME' => HOME, 'EC2_PRIVATE_KEY' => @private_key_file, 'EC2_CERT' => @certificate_file }
     end
     
+    # EC2
+    
     def run_instance(ami, options = {})
       ec2_run_instances("#{ami} #{concat_args(options)}", :env => env)[1][1]
     end
@@ -35,11 +37,25 @@ module Fingertips
     end
     
     def running?(instance_id)
-      describe_instance(instance_id)[5] == "running"
+      describe_instance(instance_id)[5] == 'running'
     end
     
     def host_of_instance(instance_id)
       describe_instance(instance_id)[3]
+    end
+    
+    # EBS
+    
+    def attach_volume(volume_id, instance_id, options = {})
+      ec2_attach_volume("#{volume_id} -i #{instance_id} #{concat_args(options)}", :env => env)
+    end
+    
+    def describe_volume(volume_id)
+      ec2_describe_volumes(volume_id, :env => env).detect { |line| line[0] == 'ATTACHMENT' && line[1] == volume_id }
+    end
+    
+    def attached?(volume_id)
+      describe_volume(volume_id)[4] == 'attached'
     end
     
     private
@@ -47,6 +63,9 @@ module Fingertips
     executable 'ec2-run-instances'
     executable 'ec2-describe-instances'
     executable 'ec2-terminate-instances'
+    
+    executable 'ec2-attach-volume'
+    executable 'ec2-describe-volumes'
     
     def parse(text)
       text.strip.split("\n").map { |line| line.split("\t") }

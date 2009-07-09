@@ -6,22 +6,14 @@ describe "Fingertips::Backup, in general" do
     @backup = Fingertips::Backup.new(fixture('config.yml'))
   end
   
-  it "should return the paths to backup" do
-    @backup.paths.should == @config['backup']['paths']
-  end
-  
-  it "should return the path to the tmp backup dirs" do
-    @backup.tmp_path.should == '/tmp/ec2_test_backup'
+  it "should return the config" do
+    @backup.config.should == @config
   end
   
   it "should return a list of all MySQL databases" do
     databases = @backup.mysql_databases
     databases.should.include 'information_schema'
     databases.should == `mysql --batch --skip-column-names -e "show databases"`.strip.split("\n")
-  end
-  
-  it "should return the AMI ID" do
-    @backup.ami.should == 'ami-nonexistant'
   end
   
   it "should return a configured Fingertips::EC2 instance" do
@@ -70,15 +62,21 @@ end
 describe "Fingertips::Backup, concerning syncing with EBS" do
   before do
     @backup = Fingertips::Backup.new(fixture('config.yml'))
+    @ec2 = @backup.ec2
+    
+    @ec2.stubs(:run_instance).returns("i-nonexistant")
+    @ec2.stubs(:running?).returns(true)
+    
+    @ec2.stubs(:attach_volume)
+    @ec2.stubs(:attached?).returns(true)
   end
   
   it "should run an EC2 instance and wait till it's online" do
-    ec2 = @backup.ec2
-    ec2.expects(:run_instance).with(@backup.ami).returns("i-nonexistant")
+    @ec2.expects(:run_instance).with('ami-nonexistant', :k => 'fingertips', :z => 'eu-west-1a').returns("i-nonexistant")
     
-    ec2.expects(:running?).with do |id|
+    @ec2.expects(:running?).with do |id|
       # next time it's queried it will be running
-      def ec2.running?(id)
+      def @ec2.running?(id)
         true
       end
       
@@ -89,7 +87,18 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
     @backup.ec2_instance_id.should == "i-nonexistant"
   end
   
-  xit "should mount the configured EBS instance and wait till it's online" do
-    @backup.ebs.expects(:mount_on).with("i-nonexistant")
+  it "should attach the existing EBS instance and wait till it's online" do
+    @ec2.expects(:attach_volume).with("vol-nonexistant", "i-nonexistant", :d => "/dev/sdh")
+    
+    @ec2.expects(:attached?).with do |id|
+      # next time it's queried it will be attached
+      def @ec2.attached?(id)
+        true
+      end
+      
+      id == "vol-nonexistant"
+    end.returns(false)
+    
+    @backup.bring_backup_volume_online!
   end
 end

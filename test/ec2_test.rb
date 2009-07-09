@@ -42,7 +42,7 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
   
   it "should terminate an instance" do
     expect_call('terminate-instances', 'i-nonexistant')
-    @instance.terminate_instance('i-nonexistant').should == "shutting-down"
+    @instance.terminate_instance('i-nonexistant').should == 'shutting-down'
   end
   
   it "should return if an instance is running" do
@@ -53,6 +53,21 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
   it "should return the public host address of an instance" do
     expect_call('describe-instances', 'i-nonexistant')
     @instance.host_of_instance('i-nonexistant').should == 'ec2-174-129-88-205.compute-1.amazonaws.com'
+  end
+  
+  it "should attach an EBS volume to an EC2 instance" do
+    expect_call('attach-volume', 'vol-nonexistant -i i-nonexistant -d /dev/sdh')
+    @instance.attach_volume('vol-nonexistant', 'i-nonexistant', :d => '/dev/sdh')
+  end
+  
+  it "should return the status of a volume" do
+    expect_call('describe-volumes', 'vol-nonexistant')
+    @instance.describe_volume('vol-nonexistant').should == @instance.send(:parse, fixture_read('describe-volumes'))[1]
+  end
+  
+  it "should return if a volume is attached" do
+    expect_call('describe-volumes', 'vol-nonexistant')
+    @instance.attached?('vol-nonexistant').should.be true
   end
   
   private

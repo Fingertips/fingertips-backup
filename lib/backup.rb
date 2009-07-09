@@ -11,21 +11,24 @@ module Fingertips
     executable :mysql
     executable :mysqldump
     
-    attr_reader :paths, :tmp_path
-    attr_reader :ami, :ec2, :ec2_instance_id
+    attr_reader :config
+    attr_reader :ec2, :ec2_instance_id
     
     def initialize(config_file)
-      config = YAML.load(File.read(config_file))
-      
-      @tmp_path = config['backup']['tmp']
-      @paths    = config['backup']['paths']
-      @ami      = config['ec2']['ami']
-      @ec2      = Fingertips::EC2.new(config['ec2']['private_key_file'], config['ec2']['certificate_file'])
+      @config = YAML.load(File.read(config_file))
+      @ec2    = Fingertips::EC2.new(@config['ec2']['private_key_file'], @config['ec2']['certificate_file'])
+    end
+    
+    def tmp_path
+      @config['backup']['tmp']
     end
     
     def bring_backup_volume_online!
-      @ec2_instance_id = @ec2.run_instance(@ami)
+      @ec2_instance_id = @ec2.run_instance(@config['ec2']['ami'], :k => @config['ec2']['keypair_name'], :z => @config['ec2']['zone'])
       sleep 2.5 until @ec2.running?(@ec2_instance_id)
+      
+      @ec2.attach_volume(@config['ec2']['ebs'], @ec2_instance_id, :d => "/dev/sdh")
+      sleep 2.5 until @ec2.attached?(@config['ec2']['ebs'])
     end
     
     def mysql_databases
@@ -33,7 +36,7 @@ module Fingertips
     end
     
     def mysql_dump_dir
-      File.join(@tmp_path, 'mysql')
+      File.join(tmp_path, 'mysql')
     end
     
     def create_mysql_dump

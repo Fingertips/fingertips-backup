@@ -1,9 +1,10 @@
 ec2:
+  zone: eu-west-1a
   ebs: vol-nonexistant
   ami: ami-nonexistant
+  keypair_name: fingertips
   private_key_file: /Volumes/Fingertips Confidential/aws/fingertips/pk-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem
   certificate_file: /Volumes/Fingertips Confidential/aws/fingertips/cert-6LN7EWTYKIDRU25OJYMTY6P75S43WA45.pem
-  zone: eu-west-1a
 backup:
   tmp: /tmp/ec2_test_backup
   paths:
