@@ -88,4 +88,8 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
     @backup.bring_backup_volume_online!
     @backup.ec2_instance_id.should == "i-nonexistant"
   end
+  
+  xit "should mount the configured EBS instance and wait till it's online" do
+    @backup.ebs.expects(:mount_on).with("i-nonexistant")
+  end
 end

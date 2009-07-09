@@ -1,4 +1,4 @@
-== Launch EC2 instance that will host the EBS backup volume
+== EC2
 
 * I used the ‘Ubuntu 9.04 Jaunty 32bit base’ image from http://alestic.com/ (ami-0d729464)
    * Find images with: $ ec2-describe-images -a | grep -i ubuntu | mate
@@ -8,3 +8,39 @@
    $ ec2-run-instances ami-0d729464 -k fingertips
 * Connect:
    $ ssh -i /Volumes/Fingertips\ Confidential/aws/fingertips/keys/fingertips root@address-obtained-from-describe-instances
+
+== EBS Creation
+
+* Create volume:
+   $ ec2-create-volume --size 1 -z us-east-1d
+* Perform attach steps except mounting
+* Format: $ yes | mkfs -t ext3 /dev/sdh
+* Now mount
+
+== EBS Attaching
+
+* Attach volume:
+   $ ec2-attach-volume vol-21e70e48 -i i-ad2f19c4 -d /dev/sdh
+* Check volume status:
+   $ ec2-describe-volumes vol-21e70e48
+* Mount volume, remote:
+   $ mkdir /mnt/data-store
+   $ mount /dev/sdh /mnt/data-store
+
+== EBS Detaching (not needed for our tool, as terminating the EC2 instance will have the same result)
+
+* Remote: $ umount /mnt/data-store
+* Detach: $ ec2-detach-volume vol-4d826724 -i i-6058a509
+
+== Backing up the backup
+
+* Create a snapshot:
+   $ ec2-create-snapshot vol-4d826724
+* List snapshots:
+   $ ec2-describe-snapshots
+
+== Increasing backup volume size
+
+* Create snapshot
+* Create new bigger volume and restore snapshot onto new volume:
+   $ ec2-create-volume –s 900 --snapshot snap-78a54011 -z us-east-1a

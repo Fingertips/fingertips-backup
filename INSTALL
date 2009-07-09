@@ -1,0 +1,12 @@
+== Requirements
+
+1. Have a Amazon EC2 image available (AMI)
+2. Create an Amazon EBS volume
+3. Install the gem: $ sudo gem install Fingertips-backup --source http://gems.github.com
+
+== Configure
+
+1. in the home folder of the user that will run the backups (root), create a .backup dir and add:
+   * config.yml
+   * Depending on what you configured in config.yml, you could add the required Amazon private key and certificate files
+   
