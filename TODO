@@ -1,12 +1,4 @@
-* Log:
-  * Executioner
-  * Output of commands
-  * SSH
-  * Catched exception during run
-
-* Write logs to a feed so we can see it's output daily
-
-* Create bin wrapper
+* Where to host the feed?
 
 * Install on miller and add cron job
 
