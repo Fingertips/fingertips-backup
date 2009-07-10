@@ -1,1 +1,14 @@
+* Use ssh directly instead of Net::SSH
+
 * Make sure to rescue any exceptions after an EC2 instance is brought online which will terminate the instance before exiting!
+
+* Log:
+  * Executioner
+  * Output of commands
+  * SSH
+
+* Write logs to a feed so we can see it's output daily
+
+* Create bin wrapper
+
+* Install on miller and add cron job
