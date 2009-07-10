@@ -1,7 +1,9 @@
-require "rubygems"
-
 require "yaml"
+
+require "rubygems"
 require "executioner"
+
+require "logger"
 require "ec2"
 
 module Fingertips
@@ -15,12 +17,15 @@ module Fingertips
     
     MYSQL_DUMP_DIR = '/tmp/mysql_backup_dumps'
     
-    attr_reader :config, :ec2
+    attr_reader :config, :ec2, :logger
     attr_accessor :ec2_instance_id
     
     def initialize(config_file)
+      @logger = Executioner.logger = Fingertips::Logger.new
       @config = YAML.load(File.read(config_file))
       @ec2    = Fingertips::EC2.new(@config['ec2']['zone'], @config['ec2']['private_key_file'], @config['ec2']['certificate_file'], @config['java_home'])
+    rescue Exception => e
+      @logger.debug "#{e.message} #{e.backtrace.join("\n")}"
     end
     
     def run!

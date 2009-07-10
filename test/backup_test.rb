@@ -6,6 +6,11 @@ describe "Fingertips::Backup, in general" do
     @backup = Fingertips::Backup.new(fixture('config.yml'))
   end
   
+  it "should have instantiated a Logger and assigned it to Executioner" do
+    @backup.logger.should.be.instance_of Fingertips::Logger
+    Executioner.logger.should.be @backup.logger
+  end
+  
   it "should return the config" do
     @backup.config.should == @config
   end
@@ -37,6 +42,12 @@ describe "Fingertips::Backup, in general" do
     @backup.expects(:take_backup_volume_offline!)
     
     @backup.run!
+  end
+  
+  it "should catch any type of exception that was raised during initialization and log it" do
+    Fingertips::Backup.new(nil)
+    # we use the logger assign to Executioner which is instantiated by Backup::new
+    Executioner.logger.logged.last.should.include "can't convert nil into String"
   end
   
   it "should catch any type of exception that was raised during the run and terminate the EC2 instance if one was launched" do
