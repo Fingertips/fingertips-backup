@@ -83,6 +83,8 @@ describe "Fingertips::Backup, concerning the EBS volume" do
     @config = @backup.config
     @ec2 = @backup.ec2
     
+    @backup.stubs(:sleep)
+    
     @ec2.stubs(:run_instance).returns("i-nonexistant")
     @ec2.stubs(:running?).returns(true)
     
@@ -103,6 +105,7 @@ describe "Fingertips::Backup, concerning the EBS volume" do
       
       id == "i-nonexistant"
     end.returns(false)
+    @backup.expects(:sleep).with(5).once
     
     @backup.launch_ec2_instance!
     @backup.ec2_instance_id.should == "i-nonexistant"
@@ -120,18 +123,14 @@ describe "Fingertips::Backup, concerning the EBS volume" do
       
       id == "vol-nonexistant"
     end.returns(false)
+    @backup.expects(:sleep).with(2.5).once
     
     @backup.attach_backup_volume!
   end
   
   it "should mount the attached EBS volume on the running instance" do
     @backup.stubs(:ec2_host).returns('instance.amazon.com')
-    
-    ssh = mock('Net::SSH')
-    Net::SSH.expects(:start).with('instance.amazon.com', 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info).yields(ssh)
-    ssh.expects(:exec!).with('mkdir /mnt/data-store')
-    ssh.expects(:exec!).with('mount /dev/sdh /mnt/data-store')
-    
+    @backup.expects(:ssh).with("-o 'StrictHostKeyChecking=no' -i '#{@config['ec2']['keypair_file']}' root@instance.amazon.com 'mkdir /mnt/data-store && mount /dev/sdh /mnt/data-store'")
     @backup.mount_backup_volume!
   end
   

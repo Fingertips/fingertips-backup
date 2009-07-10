@@ -1,11 +1,7 @@
-require "yaml"
-
 require "rubygems"
+
+require "yaml"
 require "executioner"
-
-gem 'net-ssh', '~> 2.0.11'
-require "net/ssh"
-
 require "ec2"
 
 module Fingertips
@@ -15,6 +11,7 @@ module Fingertips
     executable :mysql
     executable :mysqldump
     executable :rsync
+    executable :ssh, :switch_stdout_and_stderr => true
     
     MYSQL_DUMP_DIR = '/tmp/mysql_backup_dumps'
     
@@ -41,7 +38,7 @@ module Fingertips
     
     def launch_ec2_instance!
       @ec2_instance_id = @ec2.run_instance(@config['ec2']['ami'], @config['ec2']['keypair_name'])
-      sleep 2.5 until @ec2.running?(@ec2_instance_id)
+      sleep 5 until @ec2.running?(@ec2_instance_id)
     end
     
     def attach_backup_volume!
@@ -50,10 +47,7 @@ module Fingertips
     end
     
     def mount_backup_volume!
-      Net::SSH.start(ec2_host, 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info) do |ssh|
-        ssh.exec! 'mkdir /mnt/data-store'
-        ssh.exec! 'mount /dev/sdh /mnt/data-store'
-      end
+      ssh "-o 'StrictHostKeyChecking=no' -i '#{@config['ec2']['keypair_file']}' root@#{ec2_host} 'mkdir /mnt/data-store && mount /dev/sdh /mnt/data-store'"
     end
     
     def take_backup_volume_offline!
