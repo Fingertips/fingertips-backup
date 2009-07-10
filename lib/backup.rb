@@ -20,7 +20,7 @@ module Fingertips
     
     def initialize(config_file)
       @config = YAML.load(File.read(config_file))
-      @ec2    = Fingertips::EC2.new(@config['ec2']['zone'], @config['ec2']['private_key_file'], @config['ec2']['certificate_file'])
+      @ec2    = Fingertips::EC2.new(@config['ec2']['zone'], @config['ec2']['private_key_file'], @config['ec2']['certificate_file'], @config['java_home'])
     end
     
     def tmp_path

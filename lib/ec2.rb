@@ -12,15 +12,15 @@ module Fingertips
     include Executioner
     Executioner::SEARCH_PATHS << BIN
     
-    attr_reader :zone, :private_key_file, :certificate_file
+    attr_reader :zone, :private_key_file, :certificate_file, :java_home
     
-    def initialize(zone, private_key_file, certificate_file)
-      @zone, @private_key_file, @certificate_file = zone, private_key_file, certificate_file
+    def initialize(zone, private_key_file, certificate_file, java_home)
+      @zone, @private_key_file, @certificate_file, @java_home = zone, private_key_file, certificate_file, java_home
     end
     
     def env
       @env ||= {
-        'JAVA_HOME'       => '/Library/Java/Home',
+        'JAVA_HOME'       => @java_home,
         'EC2_HOME'        => HOME,
         'EC2_PRIVATE_KEY' => @private_key_file,
         'EC2_CERT'        => @certificate_file,
