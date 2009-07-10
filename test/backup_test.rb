@@ -10,17 +10,17 @@ describe "Fingertips::Backup, in general" do
     @backup.config.should == @config
   end
   
-  it "should return a list of all MySQL databases" do
-    databases = @backup.mysql_databases
-    databases.should.include 'information_schema'
-    databases.should == `mysql --batch --skip-column-names -e "show databases"`.strip.split("\n")
-  end
-  
   it "should return a configured Fingertips::EC2 instance" do
     @backup.ec2.should.be.instance_of Fingertips::EC2
     @backup.ec2.zone.should == @config['ec2']['zone']
     @backup.ec2.private_key_file.should == @config['ec2']['private_key_file']
     @backup.ec2.certificate_file.should == @config['ec2']['certificate_file']
+  end
+  
+  it "should return a list of all MySQL databases" do
+    databases = @backup.mysql_databases
+    databases.should.include 'information_schema'
+    databases.should == `mysql -u root --batch --skip-column-names -e "show databases"`.strip.split("\n")
   end
 end
 
@@ -47,7 +47,7 @@ describe "Fingertips::Backup, concerning the MySQL backup" do
   it "should dump each database into its own file" do
     @backup.create_mysql_dump
     
-    actual = strip_comments(`mysqldump information_schema --add-drop-table`)
+    actual = strip_comments(`mysqldump -u root information_schema --add-drop-table`)
     dump = strip_comments(File.read(File.join(@backup.mysql_dump_dir, 'information_schema.sql')))
     
     actual.should == dump

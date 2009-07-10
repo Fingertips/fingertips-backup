@@ -51,7 +51,7 @@ module Fingertips
     end
     
     def mysql_databases
-      @mysql_databases ||= mysql('--batch --skip-column-names -e "show databases"').strip.split("\n")
+      @mysql_databases ||= mysql('-u root --batch --skip-column-names -e "show databases"').strip.split("\n")
     end
     
     def mysql_dump_dir
@@ -62,7 +62,7 @@ module Fingertips
       FileUtils.mkdir_p(mysql_dump_dir)
       
       mysql_databases.each do |database|
-        mysqldump("#{database} --add-drop-table > '#{File.join(mysql_dump_dir, database)}.sql'")
+        mysqldump("-u root #{database} --add-drop-table > '#{File.join(mysql_dump_dir, database)}.sql'")
       end
     end
   end
