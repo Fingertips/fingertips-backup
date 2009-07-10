@@ -28,20 +28,27 @@ module Fingertips
       failed(e)
     end
     
+    def finished
+      @logger.debug "The backup finished."
+    end
+    
     def failed(exception)
       @logger.debug "#{exception.message} #{exception.backtrace.join("\n")}"
-      @logger.debug "[!] The backup has failed"
+      @logger.debug "[!] The backup has failed."
       raise exception
     end
     
     def run!
-      create_mysql_dump!
-      bring_backup_volume_online!
-      sync!
-    rescue Exception => e
-      failed(e)
-    ensure
-      take_backup_volume_offline! if ec2_instance_id
+      begin
+        create_mysql_dump!
+        bring_backup_volume_online!
+        sync!
+      rescue Exception => e
+        failed(e)
+      ensure
+        take_backup_volume_offline! if ec2_instance_id
+      end
+      finished
     end
     
     def bring_backup_volume_online!

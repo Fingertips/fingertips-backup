@@ -34,12 +34,13 @@ describe "Fingertips::Backup, in general" do
     @backup.ec2_host.should == 'instance.amazon.com'
   end
   
-  it "should perform a full run" do
+  it "should perform a full run and report that the backup finished" do
     @backup.expects(:create_mysql_dump!)
     @backup.expects(:bring_backup_volume_online!)
     @backup.ec2_instance_id = 'i-nonexistant'
     @backup.expects(:sync!)
     @backup.expects(:take_backup_volume_offline!)
+    @backup.expects(:finished)
     
     @backup.run!
   end
@@ -63,7 +64,12 @@ describe "Fingertips::Backup, in general" do
     
     lambda { @backup.failed(exception) }.should.raise exception.class
     @backup.logger.logged.first.should.include 'oh noes!'
-    @backup.logger.logged.last.should == "[!] The backup has failed"
+    @backup.logger.logged.last.should == "[!] The backup has failed."
+  end
+  
+  it "should report that the backup has finished" do
+    @backup.finished
+    @backup.logger.logged.last.should == "The backup finished."
   end
 end
 
