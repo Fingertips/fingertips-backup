@@ -30,12 +30,18 @@ module Fingertips
     
     def finished
       @logger.debug "The backup finished."
+      write_feed!
     end
     
     def failed(exception)
       @logger.debug "#{exception.message} #{exception.backtrace.join("\n")}"
       @logger.debug "[!] The backup has failed."
+      write_feed!
       raise exception
+    end
+    
+    def write_feed!
+      @logger.write_feed(@config['log_feed'])
     end
     
     def run!

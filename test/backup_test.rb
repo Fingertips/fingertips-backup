@@ -51,6 +51,8 @@ describe "Fingertips::Backup, in general" do
   end
   
   it "should catch any type of exception that was raised during the run and terminate the EC2 instance if one was launched and call #failed" do
+    @backup.stubs(:finished)
+    
     @backup.ec2_instance_id = 'i-nonexistant'
     @backup.stubs(:create_mysql_dump!).raises 'oh noes!'
     @backup.expects(:failed).with { |exception| exception.message == 'oh noes!' }
@@ -58,18 +60,25 @@ describe "Fingertips::Backup, in general" do
     @backup.run!
   end
   
-  it "should log an exception, log that a failure occured, and re-raise the exception" do
+  it "should report that the backup failed and re-raise the exception" do
     exception = nil
     begin; raise 'oh noes!'; rescue Exception => e; exception = e; end
     
+    @backup.expects(:write_feed!)
     lambda { @backup.failed(exception) }.should.raise exception.class
     @backup.logger.logged.first.should.include 'oh noes!'
     @backup.logger.logged.last.should == "[!] The backup has failed."
   end
   
   it "should report that the backup has finished" do
+    @backup.expects(:write_feed!)
     @backup.finished
     @backup.logger.logged.last.should == "The backup finished."
+  end
+  
+  it "should write the feed of the current log" do
+    @backup.logger.expects(:write_feed).with(@config['log_feed'])
+    @backup.write_feed!
   end
 end
 
