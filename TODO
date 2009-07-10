@@ -1,9 +1,8 @@
-* Make sure to rescue any exceptions after an EC2 instance is brought online which will terminate the instance before exiting!
-
 * Log:
   * Executioner
   * Output of commands
   * SSH
+  * Catched exception during run
 
 * Write logs to a feed so we can see it's output daily
 
