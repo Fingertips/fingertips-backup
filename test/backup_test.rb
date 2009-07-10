@@ -45,9 +45,8 @@ describe "Fingertips::Backup, in general" do
   end
   
   it "should catch any type of exception that was raised during initialization and log it" do
-    Fingertips::Backup.new(nil)
-    # we use the logger assign to Executioner which is instantiated by Backup::new
-    Executioner.logger.logged.last.should.include "can't convert nil into String"
+    backup = Fingertips::Backup.new(nil)
+    backup.logger.logged.last.should.include "initialize"
   end
   
   it "should catch any type of exception that was raised during the run and terminate the EC2 instance if one was launched" do
@@ -55,6 +54,12 @@ describe "Fingertips::Backup, in general" do
     @backup.stubs(:create_mysql_dump!).raises
     @backup.expects(:take_backup_volume_offline!)
     lambda { @backup.run! }.should.not.raise
+  end
+  
+  it "should catch any type of exception that was raised during the run and log it" do
+    @backup.stubs(:create_mysql_dump!).raises
+    @backup.run!
+    @backup.logger.logged.last.should.include "create_mysql_dump!"
   end
 end
 

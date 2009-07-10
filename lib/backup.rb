@@ -32,7 +32,8 @@ module Fingertips
       create_mysql_dump!
       bring_backup_volume_online!
       sync!
-    rescue Exception
+    rescue Exception   => e
+      @logger.debug "#{e.message} #{e.backtrace.join("\n")}"
     ensure
       take_backup_volume_offline! if ec2_instance_id
     end
