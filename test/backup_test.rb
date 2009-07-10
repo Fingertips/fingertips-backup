@@ -44,22 +44,26 @@ describe "Fingertips::Backup, in general" do
     @backup.run!
   end
   
-  it "should catch any type of exception that was raised during initialization and log it" do
+  it "should catch any type of exception that was raised during initialization and call #failed" do
+    Fingertips::Backup.any_instance.expects(:failed).with { |exception| exception.backtrace.to_s.include?('initialize') }
     backup = Fingertips::Backup.new(nil)
-    backup.logger.logged.last.should.include "initialize"
   end
   
-  it "should catch any type of exception that was raised during the run and terminate the EC2 instance if one was launched" do
+  it "should catch any type of exception that was raised during the run and terminate the EC2 instance if one was launched and call #failed" do
     @backup.ec2_instance_id = 'i-nonexistant'
-    @backup.stubs(:create_mysql_dump!).raises
+    @backup.stubs(:create_mysql_dump!).raises 'oh noes!'
+    @backup.expects(:failed).with { |exception| exception.message == 'oh noes!' }
     @backup.expects(:take_backup_volume_offline!)
-    lambda { @backup.run! }.should.not.raise
+    @backup.run!
   end
   
-  it "should catch any type of exception that was raised during the run and log it" do
-    @backup.stubs(:create_mysql_dump!).raises
-    @backup.run!
-    @backup.logger.logged.last.should.include "create_mysql_dump!"
+  it "should log an exception, log that a failure occured, and re-raise the exception" do
+    exception = nil
+    begin; raise 'oh noes!'; rescue Exception => e; exception = e; end
+    
+    lambda { @backup.failed(exception) }.should.raise exception.class
+    @backup.logger.logged.first.should.include 'oh noes!'
+    @backup.logger.logged.last.should == "[!] The backup has failed"
   end
 end
 
