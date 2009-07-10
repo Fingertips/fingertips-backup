@@ -5,6 +5,8 @@ require "mocha"
 $:.unshift File.expand_path('../../lib', __FILE__)
 require "backup"
 
+Fingertips::Logger.print = false
+
 FIXTURES = File.expand_path('../fixtures', __FILE__)
 
 class Test::Unit::TestCase
