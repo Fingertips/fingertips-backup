@@ -27,7 +27,9 @@ module Fingertips
       create_mysql_dump!
       bring_backup_volume_online!
       sync!
-      take_backup_volume_offline!
+    rescue Exception
+    ensure
+      take_backup_volume_offline! if ec2_instance_id
     end
     
     def bring_backup_volume_online!

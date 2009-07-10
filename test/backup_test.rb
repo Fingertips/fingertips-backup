@@ -32,10 +32,18 @@ describe "Fingertips::Backup, in general" do
   it "should perform a full run" do
     @backup.expects(:create_mysql_dump!)
     @backup.expects(:bring_backup_volume_online!)
+    @backup.ec2_instance_id = 'i-nonexistant'
     @backup.expects(:sync!)
     @backup.expects(:take_backup_volume_offline!)
     
     @backup.run!
+  end
+  
+  it "should catch any type of exception that was raised during the run and terminate the EC2 instance if one was launched" do
+    @backup.ec2_instance_id = 'i-nonexistant'
+    @backup.stubs(:create_mysql_dump!).raises
+    @backup.expects(:take_backup_volume_offline!)
+    lambda { @backup.run! }.should.not.raise
   end
 end
 
