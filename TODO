@@ -12,3 +12,8 @@
 * Create bin wrapper
 
 * Install on miller and add cron job
+
+== Later
+
+* Create weekly snapshot to S3
+* Add timeouts when checking if the instance is running and the volume is attached
