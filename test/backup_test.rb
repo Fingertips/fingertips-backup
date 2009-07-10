@@ -18,6 +18,7 @@ describe "Fingertips::Backup, in general" do
   
   it "should return a configured Fingertips::EC2 instance" do
     @backup.ec2.should.be.instance_of Fingertips::EC2
+    @backup.ec2.zone.should == @config['ec2']['zone']
     @backup.ec2.private_key_file.should == @config['ec2']['private_key_file']
     @backup.ec2.certificate_file.should == @config['ec2']['certificate_file']
   end
@@ -62,6 +63,7 @@ end
 describe "Fingertips::Backup, concerning syncing with EBS" do
   before do
     @backup = Fingertips::Backup.new(fixture('config.yml'))
+    @config = @backup.config
     @ec2 = @backup.ec2
     
     @ec2.stubs(:run_instance).returns("i-nonexistant")
@@ -74,7 +76,7 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
   it "should run an EC2 instance and wait till it's online" do
     @backup.stubs(:mount_backup_volume!)
     
-    @ec2.expects(:run_instance).with('ami-nonexistant', :k => 'fingertips', :z => 'eu-west-1a').returns("i-nonexistant")
+    @ec2.expects(:run_instance).with('ami-nonexistant', 'fingertips').returns("i-nonexistant")
     
     @ec2.expects(:running?).with do |id|
       # next time it's queried it will be running
@@ -85,14 +87,13 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
       id == "i-nonexistant"
     end.returns(false)
     
-    @backup.bring_backup_volume_online!
+    @backup.launch_ec2_instance!
     @backup.ec2_instance_id.should == "i-nonexistant"
   end
   
   it "should attach the existing EBS instance and wait till it's online" do
-    @backup.stubs(:mount_backup_volume!)
-    
-    @ec2.expects(:attach_volume).with("vol-nonexistant", "i-nonexistant", :d => "/dev/sdh")
+    @backup.ec2_instance_id = 'i-nonexistant'
+    @ec2.expects(:attach_volume).with("vol-nonexistant", "i-nonexistant", "/dev/sdh")
     
     @ec2.expects(:attached?).with do |id|
       # next time it's queried it will be attached
@@ -103,16 +104,25 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
       id == "vol-nonexistant"
     end.returns(false)
     
-    @backup.bring_backup_volume_online!
+    @backup.attach_backup_volume!
   end
   
   it "should mount the attached EBS volume on the running instance" do
+    @backup.ec2_instance_id = 'i-nonexistant'
     @ec2.expects(:host_of_instance).with('i-nonexistant').returns('instance.amazon.com')
     
     ssh = mock('Net::SSH')
-    Net::SSH.expects(:start).with('instance.amazon.com', 'root', :keys => [@backup.config['ec2']['keypair_file']]).yields(ssh)
+    Net::SSH.expects(:start).with('instance.amazon.com', 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info).yields(ssh)
     ssh.expects(:exec!).with('mkdir /mnt/data-store')
     ssh.expects(:exec!).with('mount /dev/sdh /mnt/data-store')
+    
+    @backup.mount_backup_volume!
+  end
+  
+  it "should run all steps to bring the backup volume online" do
+    @backup.expects(:launch_ec2_instance!)
+    @backup.expects(:attach_backup_volume!)
+    @backup.expects(:mount_backup_volume!)
     
     @backup.bring_backup_volume_online!
   end

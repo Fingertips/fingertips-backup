@@ -2,6 +2,8 @@ require "yaml"
 
 require "rubygems"
 require "executioner"
+
+gem 'net-ssh', '~> 2.0.11'
 require "net/ssh"
 
 require "ec2"
@@ -13,12 +15,12 @@ module Fingertips
     executable :mysql
     executable :mysqldump
     
-    attr_reader :config
-    attr_reader :ec2, :ec2_instance_id
+    attr_reader :config, :ec2
+    attr_accessor :ec2_instance_id
     
     def initialize(config_file)
       @config = YAML.load(File.read(config_file))
-      @ec2    = Fingertips::EC2.new(@config['ec2']['private_key_file'], @config['ec2']['certificate_file'])
+      @ec2    = Fingertips::EC2.new(@config['ec2']['zone'], @config['ec2']['private_key_file'], @config['ec2']['certificate_file'])
     end
     
     def tmp_path
@@ -26,17 +28,23 @@ module Fingertips
     end
     
     def bring_backup_volume_online!
-      @ec2_instance_id = @ec2.run_instance(@config['ec2']['ami'], :k => @config['ec2']['keypair_name'], :z => @config['ec2']['zone'])
-      sleep 2.5 until @ec2.running?(@ec2_instance_id)
-      
-      @ec2.attach_volume(@config['ec2']['ebs'], @ec2_instance_id, :d => "/dev/sdh")
-      sleep 2.5 until @ec2.attached?(@config['ec2']['ebs'])
-      
+      launch_ec2_instance!
+      attach_backup_volume!
       mount_backup_volume!
     end
     
+    def launch_ec2_instance!
+      @ec2_instance_id = @ec2.run_instance(@config['ec2']['ami'], @config['ec2']['keypair_name'])
+      sleep 2.5 until @ec2.running?(@ec2_instance_id)
+    end
+    
+    def attach_backup_volume!
+      @ec2.attach_volume(@config['ec2']['ebs'], ec2_instance_id, "/dev/sdh")
+      sleep 2.5 until @ec2.attached?(@config['ec2']['ebs'])
+    end
+    
     def mount_backup_volume!
-      Net::SSH.start(@ec2.host_of_instance(@ec2_instance_id), 'root', :keys => [@config['ec2']['keypair_file']]) do |ssh|
+      Net::SSH.start(@ec2.host_of_instance(ec2_instance_id), 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info) do |ssh|
         ssh.exec! 'mkdir /mnt/data-store'
         ssh.exec! 'mount /dev/sdh /mnt/data-store'
       end

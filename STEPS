@@ -1,18 +1,18 @@
 == EC2
 
-* I used the ‘Ubuntu 9.04 Jaunty 32bit base’ image from http://alestic.com/ (ami-0d729464)
+* I used the ‘Ubuntu 9.04 Jaunty 32bit base’ image from http://alestic.com/ (ami-0db89079)
    * Find images with: $ ec2-describe-images -a | grep -i ubuntu | mate
 * Generate SSH keypair (skip if using an existing keypair, we have the fingertips keypair):
-   $ ec2-add-keypair NAME > /path/to/keypair
+   $ ec2-add-keypair --region eu-west-1 NAME > /path/to/keypair
 * Launch instance:
-   $ ec2-run-instances ami-0d729464 -k fingertips
+   $ ec2-run-instances ami-0d729464 -k fingertips --region eu-west-1 -z eu-west-1a
 * Connect:
    $ ssh -i /Volumes/Fingertips\ Confidential/aws/fingertips/keys/fingertips root@address-obtained-from-describe-instances
 
 == EBS Creation
 
 * Create volume:
-   $ ec2-create-volume --size 1 -z us-east-1d
+   $ ec2-create-volume --size 1 --region eu-west-1 -z eu-west-1a
 * Perform attach steps except mounting
 * Format: $ yes | mkfs -t ext3 /dev/sdh
 * Now mount
@@ -43,4 +43,4 @@
 
 * Create snapshot
 * Create new bigger volume and restore snapshot onto new volume:
-   $ ec2-create-volume –s 900 --snapshot snap-78a54011 -z us-east-1a
+   $ ec2-create-volume –s 900 --snapshot snap-78a54011 -z eu-west-1a

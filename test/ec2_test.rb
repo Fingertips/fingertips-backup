@@ -3,14 +3,16 @@ require File.expand_path('../test_helper', __FILE__)
 describe "Fingertips::EC2, in general" do
   before do
     @ami = 'ami-nonexistant'
-    @instance = Fingertips::EC2.new('/path/to/private_key_file', '/path/to/certificate_file')
+    @instance = Fingertips::EC2.new('eu-west-1a', '/path/to/private_key_file', '/path/to/certificate_file')
   end
   
   it "should return the right env variables to be able to use the Amazon CLI tools" do
     @instance.env.should == {
+      'JAVA_HOME'         => '/Library/Java/Home',
       'EC2_HOME'        => '/opt/ec2',
       'EC2_PRIVATE_KEY' => '/path/to/private_key_file',
-      'EC2_CERT'        => '/path/to/certificate_file'
+      'EC2_CERT'        => '/path/to/certificate_file',
+      'EC2_URL'         => 'https://eu-west-1.ec2.amazonaws.com'
     }
   end
   
@@ -26,13 +28,13 @@ end
 
 describe "Fingertips::EC2, concerning the pre-defined commands" do
   before do
-    @instance = Fingertips::EC2.new('/path/to/private_key_file', '/path/to/certificate_file')
+    @instance = Fingertips::EC2.new('eu-west-1a', '/path/to/private_key_file', '/path/to/certificate_file')
     @options = { :switch_stdout_and_stderr => false, :env => @instance.env }
   end
   
   it "should run an instance of the given AMI with the given options and return the instance ID" do
-    expect_call('run-instances', "ami-nonexistant -k fingertips")
-    @instance.run_instance('ami-nonexistant', :k => 'fingertips').should == 'i-0992a760'
+    expect_call('run-instances', "ami-nonexistant -z eu-west-1a -k fingertips")
+    @instance.run_instance('ami-nonexistant', 'fingertips').should == 'i-0992a760'
   end
   
   it "should return the status of an instance" do
@@ -57,7 +59,7 @@ describe "Fingertips::EC2, concerning the pre-defined commands" do
   
   it "should attach an EBS volume to an EC2 instance" do
     expect_call('attach-volume', 'vol-nonexistant -i i-nonexistant -d /dev/sdh')
-    @instance.attach_volume('vol-nonexistant', 'i-nonexistant', :d => '/dev/sdh')
+    @instance.attach_volume('vol-nonexistant', 'i-nonexistant', '/dev/sdh')
   end
   
   it "should return the status of a volume" do

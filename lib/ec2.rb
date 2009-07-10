@@ -12,20 +12,26 @@ module Fingertips
     include Executioner
     Executioner::SEARCH_PATHS << BIN
     
-    attr_reader :private_key_file, :certificate_file
+    attr_reader :zone, :private_key_file, :certificate_file
     
-    def initialize(private_key_file, certificate_file)
-      @private_key_file, @certificate_file = private_key_file, certificate_file
+    def initialize(zone, private_key_file, certificate_file)
+      @zone, @private_key_file, @certificate_file = zone, private_key_file, certificate_file
     end
     
     def env
-      { 'EC2_HOME' => HOME, 'EC2_PRIVATE_KEY' => @private_key_file, 'EC2_CERT' => @certificate_file }
+      @env ||= {
+        'JAVA_HOME'       => '/Library/Java/Home',
+        'EC2_HOME'        => HOME,
+        'EC2_PRIVATE_KEY' => @private_key_file,
+        'EC2_CERT'        => @certificate_file,
+        'EC2_URL'         => "https://#{@zone[0..-2]}.ec2.amazonaws.com"
+      }
     end
     
     # EC2
     
-    def run_instance(ami, options = {})
-      ec2_run_instances("#{ami} #{concat_args(options)}", :env => env)[1][1]
+    def run_instance(ami, keypair_name, options = {})
+      ec2_run_instances("#{ami} -z #{@zone} -k #{keypair_name}", :env => env)[1][1]
     end
     
     def describe_instance(instance_id)
@@ -46,8 +52,8 @@ module Fingertips
     
     # EBS
     
-    def attach_volume(volume_id, instance_id, options = {})
-      ec2_attach_volume("#{volume_id} -i #{instance_id} #{concat_args(options)}", :env => env)
+    def attach_volume(volume_id, instance_id, device)
+      ec2_attach_volume("#{volume_id} -i #{instance_id} -d #{device}", :env => env)
     end
     
     def describe_volume(volume_id)
