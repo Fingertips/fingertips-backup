@@ -14,6 +14,9 @@ module Fingertips
     Executioner::SEARCH_PATHS << '/usr/local/mysql/bin'
     executable :mysql
     executable :mysqldump
+    executable :rsync
+    
+    MYSQL_DUMP_DIR = '/tmp/mysql_backup_dumps'
     
     attr_reader :config, :ec2
     attr_accessor :ec2_instance_id
@@ -23,8 +26,11 @@ module Fingertips
       @ec2    = Fingertips::EC2.new(@config['ec2']['zone'], @config['ec2']['private_key_file'], @config['ec2']['certificate_file'], @config['java_home'])
     end
     
-    def tmp_path
-      @config['backup']['tmp']
+    def run!
+      create_mysql_dump!
+      bring_backup_volume_online!
+      sync!
+      take_backup_volume_offline!
     end
     
     def bring_backup_volume_online!
@@ -44,26 +50,35 @@ module Fingertips
     end
     
     def mount_backup_volume!
-      Net::SSH.start(@ec2.host_of_instance(ec2_instance_id), 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info) do |ssh|
+      Net::SSH.start(ec2_host, 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info) do |ssh|
         ssh.exec! 'mkdir /mnt/data-store'
         ssh.exec! 'mount /dev/sdh /mnt/data-store'
       end
+    end
+    
+    def take_backup_volume_offline!
+      @ec2.terminate_instance @ec2_instance_id
+    end
+    
+    def ec2_host
+      @ec2_host ||= @ec2.host_of_instance(ec2_instance_id)
     end
     
     def mysql_databases
       @mysql_databases ||= mysql('-u root --batch --skip-column-names -e "show databases"').strip.split("\n")
     end
     
-    def mysql_dump_dir
-      File.join(tmp_path, 'mysql')
-    end
-    
-    def create_mysql_dump
-      FileUtils.mkdir_p(mysql_dump_dir)
+    def create_mysql_dump!
+      FileUtils.rm_rf(MYSQL_DUMP_DIR)
+      FileUtils.mkdir_p(MYSQL_DUMP_DIR)
       
       mysql_databases.each do |database|
-        mysqldump("-u root #{database} --add-drop-table > '#{File.join(mysql_dump_dir, database)}.sql'")
+        mysqldump("-u root #{database} --add-drop-table > '#{File.join(MYSQL_DUMP_DIR, database)}.sql'")
       end
+    end
+    
+    def sync!
+      rsync "-avz -e \"ssh -i '#{@config['ec2']['keypair_file']}'\" '#{MYSQL_DUMP_DIR}' '#{@config['backup'].join("' '")}' root@#{ec2_host}:/mnt/data-store"
     end
   end
 end

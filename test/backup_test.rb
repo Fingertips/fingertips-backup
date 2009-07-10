@@ -22,6 +22,21 @@ describe "Fingertips::Backup, in general" do
     databases.should.include 'information_schema'
     databases.should == `mysql -u root --batch --skip-column-names -e "show databases"`.strip.split("\n")
   end
+  
+  it "should return the host of the EC2 instance" do
+    @backup.ec2_instance_id = 'i-nonexistant'
+    @backup.ec2.expects(:host_of_instance).with('i-nonexistant').returns('instance.amazon.com')
+    @backup.ec2_host.should == 'instance.amazon.com'
+  end
+  
+  it "should perform a full run" do
+    @backup.expects(:create_mysql_dump!)
+    @backup.expects(:bring_backup_volume_online!)
+    @backup.expects(:sync!)
+    @backup.expects(:take_backup_volume_offline!)
+    
+    @backup.run!
+  end
 end
 
 describe "Fingertips::Backup, concerning the MySQL backup" do
@@ -31,24 +46,26 @@ describe "Fingertips::Backup, concerning the MySQL backup" do
   end
   
   after do
-    FileUtils.rm_rf(@backup.tmp_path)
+    FileUtils.rm_rf(Fingertips::Backup::MYSQL_DUMP_DIR)
   end
   
-  it "should return the tmp mysql dump dir" do
-    @backup.mysql_dump_dir.should == File.join(@backup.tmp_path, 'mysql')
+  it "should first remove the tmp mysql dump dir" do
+    # have to use at_least_once because it's also called in the after filter
+    FileUtils.expects(:rm_rf).with(Fingertips::Backup::MYSQL_DUMP_DIR).at_least_once
+    @backup.create_mysql_dump!
   end
   
   it "should create the tmp mysql dump dir" do
-    @backup.create_mysql_dump
-    File.should.exist @backup.mysql_dump_dir
-    File.should.be.directory @backup.mysql_dump_dir
+    @backup.create_mysql_dump!
+    File.should.exist Fingertips::Backup::MYSQL_DUMP_DIR
+    File.should.be.directory Fingertips::Backup::MYSQL_DUMP_DIR
   end
   
   it "should dump each database into its own file" do
-    @backup.create_mysql_dump
+    @backup.create_mysql_dump!
     
     actual = strip_comments(`mysqldump -u root information_schema --add-drop-table`)
-    dump = strip_comments(File.read(File.join(@backup.mysql_dump_dir, 'information_schema.sql')))
+    dump = strip_comments(File.read(File.join(Fingertips::Backup::MYSQL_DUMP_DIR, 'information_schema.sql')))
     
     actual.should == dump
   end
@@ -60,7 +77,7 @@ describe "Fingertips::Backup, concerning the MySQL backup" do
   end
 end
 
-describe "Fingertips::Backup, concerning syncing with EBS" do
+describe "Fingertips::Backup, concerning the EBS volume" do
   before do
     @backup = Fingertips::Backup.new(fixture('config.yml'))
     @config = @backup.config
@@ -108,8 +125,7 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
   end
   
   it "should mount the attached EBS volume on the running instance" do
-    @backup.ec2_instance_id = 'i-nonexistant'
-    @ec2.expects(:host_of_instance).with('i-nonexistant').returns('instance.amazon.com')
+    @backup.stubs(:ec2_host).returns('instance.amazon.com')
     
     ssh = mock('Net::SSH')
     Net::SSH.expects(:start).with('instance.amazon.com', 'root', :auth_methods => %w{ publickey }, :keys => [@config['ec2']['keypair_file']], :verbose => :info).yields(ssh)
@@ -125,5 +141,23 @@ describe "Fingertips::Backup, concerning syncing with EBS" do
     @backup.expects(:mount_backup_volume!)
     
     @backup.bring_backup_volume_online!
+  end
+  
+  it "should take the backup volume offline by terminating the EC2 instance" do
+    @backup.ec2_instance_id = 'i-nonexistant'
+    @backup.ec2.expects(:terminate_instance).with('i-nonexistant')
+    @backup.take_backup_volume_offline!
+  end
+end
+
+describe "Fingertips::Backup, concerning syncing" do
+  before do
+    @backup = Fingertips::Backup.new(fixture('config.yml'))
+    @backup.stubs(:ec2_host).returns('instance.amazon.com')
+  end
+  
+  it "should sync all configured paths and the mysql dump dir to the backup volume" do
+    @backup.expects(:rsync).with("-avz -e \"ssh -i '#{@backup.config['ec2']['keypair_file']}'\" '#{Fingertips::Backup::MYSQL_DUMP_DIR}' '/var/www/apps' '/root' root@instance.amazon.com:/mnt/data-store")
+    @backup.sync!
   end
 end

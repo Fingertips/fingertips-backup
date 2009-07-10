@@ -44,3 +44,7 @@
 * Create snapshot
 * Create new bigger volume and restore snapshot onto new volume:
    $ ec2-create-volume –s 900 --snapshot snap-78a54011 -z eu-west-1a
+
+== Rsync
+
+/usr/bin/rsync -avz -e "ssh -i '/Volumes/Fingertips Confidential/aws/fingertips/keys/fingertips'" '/tmp/mysql_backup_dump' DIRS root@ec2-79-125-41-163.eu-west-1.compute.amazonaws.com:/mnt/data-store
