@@ -1,5 +1,9 @@
 java_home: /Library/Java/Home
 log_feed: /var/www/backup_feed/backup_feed.xml
+s3:
+  bucket: backup_feed
+  access_key_id: ANID
+  secret_access_key: SOSECRET
 ec2:
   zone: eu-west-1a
   ebs: vol-nonexistant

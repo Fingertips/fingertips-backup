@@ -2,6 +2,7 @@ require "yaml"
 
 require "rubygems"
 require "executioner"
+require "aws/s3"
 
 require "logger"
 require "ec2"
@@ -17,31 +18,37 @@ module Fingertips
     
     MYSQL_DUMP_DIR = '/tmp/mysql_backup_dumps'
     
-    attr_reader :config, :ec2, :logger
+    attr_reader :config, :ec2, :logger, :s3
     attr_accessor :ec2_instance_id
     
     def initialize(config_file)
       @logger = Executioner.logger = Fingertips::Logger.new
       @config = YAML.load(File.read(config_file))
       @ec2    = Fingertips::EC2.new(@config['ec2']['zone'], @config['ec2']['private_key_file'], @config['ec2']['certificate_file'], @config['java_home'])
+      @s3     = AWS::S3::Base.establish_connection!(:access_key_id => @config['s3']['access_key_id'], :secret_access_key => @config['s3']['secret_access_key'])
     rescue Exception => e
       failed(e)
     end
     
     def finished
       @logger.debug "The backup finished."
-      write_feed!
+      publish_log!
     end
     
     def failed(exception)
       @logger.debug "#{exception.message} #{exception.backtrace.join("\n")}"
       @logger.debug "[!] The backup has failed."
-      write_feed!
+      publish_log!
       raise exception
     end
     
     def write_feed!
       @logger.write_feed(@config['log_feed'])
+    end
+    
+    def publish_log!
+      write_feed!
+      AWS::S3::S3Object.store('backup_feed.xml', File.open(@config['log_feed']), @config['s3']['bucket'], :content_type => 'application/atom+xml', :access => :public_read)
     end
     
     def run!

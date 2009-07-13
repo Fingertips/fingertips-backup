@@ -22,6 +22,12 @@ describe "Fingertips::Backup, in general" do
     @backup.ec2.certificate_file.should == @config['ec2']['certificate_file']
   end
   
+  it "should return a configured AWS::S3 connection" do
+    @backup.s3.should.be.instance_of AWS::S3::Connection
+    @backup.s3.access_key_id.should == @config['s3']['access_key_id']
+    @backup.s3.secret_access_key.should == @config['s3']['secret_access_key']
+  end
+  
   it "should return a list of all MySQL databases" do
     databases = @backup.mysql_databases
     databases.should.include 'information_schema'
@@ -64,14 +70,14 @@ describe "Fingertips::Backup, in general" do
     exception = nil
     begin; raise 'oh noes!'; rescue Exception => e; exception = e; end
     
-    @backup.expects(:write_feed!)
+    @backup.expects(:publish_log!)
     lambda { @backup.failed(exception) }.should.raise exception.class
     @backup.logger.logged.first.should.include 'oh noes!'
     @backup.logger.logged.last.should == "[!] The backup has failed."
   end
   
   it "should report that the backup has finished" do
-    @backup.expects(:write_feed!)
+    @backup.expects(:publish_log!)
     @backup.finished
     @backup.logger.logged.last.should == "The backup finished."
   end
@@ -79,6 +85,17 @@ describe "Fingertips::Backup, in general" do
   it "should write the feed of the current log" do
     @backup.logger.expects(:write_feed).with(@config['log_feed'])
     @backup.write_feed!
+  end
+  
+  it "should push the log to S3" do
+    @backup.expects(:write_feed!)
+    
+    file = stub('Feed file')
+    File.expects(:open).with(@config['log_feed']).returns(file)
+    
+    AWS::S3::S3Object.expects(:store).with('backup_feed.xml', file, @config['s3']['bucket'], :content_type => 'application/atom+xml', :access => :public_read)
+    
+    @backup.publish_log!
   end
 end
 
