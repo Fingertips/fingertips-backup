@@ -1,9 +1,8 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.expand_path('../../lib', __FILE__)) if $0 == __FILE__
-require 'backup'
-
 if config = ARGV.first
+  $:.unshift(File.expand_path('../../lib', __FILE__)) if $0 == __FILE__
+  require 'backup'
   Fingertips::Backup.new(config).run!
 else
   puts "Usage: #{$0} /path/to/config.yml"
