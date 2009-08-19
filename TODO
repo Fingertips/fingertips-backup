@@ -1,8 +1,8 @@
-* Where to host the feed?
-
 * Install on miller and add cron job
 
 == Later
 
+* Only include the log in the feed if the backup failed
 * Create weekly snapshot to S3
 * Add timeouts when checking if the instance is running and the volume is attached
+* Write intermediate feed file to /tmp instead of asking for a path in the config
